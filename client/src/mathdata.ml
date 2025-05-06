@@ -2803,7 +2803,7 @@ let mghtml_nice_trm th m =
           mghtml_nice_lam_r a m1 [x] (x::cx)
        | Imp(m1,m2) ->
           Info(InfNam("&xrarr;"),mghtml_nice_trm_r m1 cx,mghtml_nice_trm_r m2 cx)
-       | All(Prop,Imp(All(a,Imp(m1,DB(1))),DB(0))) when not (free_in 0 m1) ->
+       | All(Prop,Imp(All(a,Imp(m1,DB(1))),DB(0))) when not (free_in 1 m1) ->
           let x = Printf.sprintf "x%d" (List.length cx) in
           mghtml_nice_ex_r a m1 [x] (x::"_"::cx)
        | All(TpArr(a,TpArr(a2,Prop)),Imp(Ap(Ap(DB(0),lhs),rhs),Ap(Ap(DB(0),rhs2),lhs2))) when a2 = a && lhs = lhs2 && rhs = rhs2 && not (free_in 0 lhs) && not (free_in 0 rhs) ->
@@ -2860,7 +2860,7 @@ let mghtml_nice_trm th m =
          Bi("&exist;",[(List.rev newvars,None)],mghtml_nice_trm_r m cx)
        else
          Bi("&exist;",[(List.rev newvars,Some(AscTp,mghtml_nice_stp_r a))],mghtml_nice_trm_r m cx)
-    | All(Prop,Imp(All(b,Imp(m1,DB(1))),DB(0))) when not (free_in 0 m1) ->
+    | All(Prop,Imp(All(b,Imp(m1,DB(1))),DB(0))) when not (free_in 1 m1) ->
        if a = b then
          let x = Printf.sprintf "x%d" (List.length cx) in
          mghtml_nice_ex_r a m1 (x::newvars) (x::"_"::cx)
@@ -3260,7 +3260,7 @@ let html_trm_partial pubaddr pubitem th m szlim loclist vcx =
           let (r2,szlim) = html_trm_partial_r m2 szlim (Some(true)::loclist) vcx in
           let (r1,szlim) = html_trm_partial_r m1 (szlim-1) (Some(false)::loclist) vcx in
           (Info(InfNam("&xrarr;"),r1,r2),szlim)
-       | All(Prop,Imp(All(a,Imp(m1,DB(1))),DB(0))) when not (free_in 0 m1) ->
+       | All(Prop,Imp(All(a,Imp(m1,DB(1))),DB(0))) when not (free_in 1 m1) ->
           let x = Printf.sprintf "x%d" (List.length vcx) in
           html_ex_partial_r a m1 [x] szlim (Some(false)::None::Some(false)::None::loclist) (x::"_"::vcx)
        | All(TpArr(a,TpArr(a2,Prop)),Imp(Ap(Ap(DB(0),lhs),rhs),Ap(Ap(DB(0),rhs2),lhs2))) when a2 = a && lhs = lhs2 && rhs = rhs2 && not (free_in 0 lhs) && not (free_in 0 rhs) ->
@@ -3337,7 +3337,7 @@ let html_trm_partial pubaddr pubitem th m szlim loclist vcx =
        else
          let (r1,szlim) = html_trm_partial_r m (szlim-1) loclist vcx in
          (Bi("&exist;",[(List.rev newvars,Some(AscTp,mghtml_nice_stp_r a))],r1),szlim-1)
-    | All(Prop,Imp(All(b,Imp(m1,DB(1))),DB(0))) when not (free_in 0 m1) ->
+    | All(Prop,Imp(All(b,Imp(m1,DB(1))),DB(0))) when not (free_in 1 m1) ->
        if a = b then
          let x = Printf.sprintf "x%d" (List.length vcx) in
          html_ex_partial_r a m1 (x::newvars) szlim (Some(false)::None::Some(false)::None::loclist) (x::"_"::vcx)
