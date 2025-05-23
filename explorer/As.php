@@ -9,7 +9,7 @@ if (! (isset ($json->response))) {
   echo "<h3>Not known " . $_GET["b"] . " " . $json->response . "</h3>";
   exit(0);
 }
-if (($o->type != "assetid") && ($o->type != "asset")) {
+if (($json->dbdata[0]->type != "assetid") && ($json->dbdata[0]->type != "asset")) {
     header('Location: q.php?b=' . $_GET["b"]); die();
 }
 if ($json->dbdata[0]->type == 'assetid') {
