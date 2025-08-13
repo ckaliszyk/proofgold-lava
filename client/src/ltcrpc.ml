@@ -1335,11 +1335,20 @@ module DbLtcBurnTx = Dbmbasic (struct type t = int64 * hashval * hashval * hashv
 
 module DbLtcBlock = Dbmbasic (struct type t = hashval * int64 * int64 * hashval list let basedir = "ltcblock" let seival = sei_prod4 sei_hashval sei_int64 sei_int64 (sei_list sei_hashval) seis let seoval = seo_prod4 seo_hashval seo_int64 seo_int64 (seo_list seo_hashval) seosb end)
 
+let rec remdups_pfg_status_height_entries l r =
+  match l with
+  | [] -> r
+  | e::lr ->
+     if List.mem e r then
+       remdups_pfg_status_height_entries lr r
+     else
+       remdups_pfg_status_height_entries lr (e::r)
+
 let rec merge_pfg_status bds =
   match bds with
   | [] -> []
   | (dh1,l1)::(dh2,l2)::bdr when dh1 = dh2 -> merge_pfg_status ((dh1,l1 @ l2)::bdr)
-  | (dh1,l1)::bdr -> (dh1,l1)::merge_pfg_status bdr
+  | (dh1,l1)::bdr -> (dh1,remdups_pfg_status_height_entries l1 [])::merge_pfg_status bdr
 
 let rec ltc_process_block h =
   let hh = hexstring_hashval h in
