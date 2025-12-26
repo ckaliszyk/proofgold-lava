@@ -1618,7 +1618,7 @@ Hashtbl.add msgtype_handler Headers
   (fun (sin,sout,cs,ms) ->
     let c = ref (ms,String.length ms,None,0,0) in
     let (n,cn) = sei_int8 seis !c in (*** peers can request at most 255 headers at a time **)
-    log_string (Printf.sprintf "got %d Headers\n" n);
+    if n <> 0 then log_string (Printf.sprintf "got %d Headers\n" n);
     c := cn;
     let tm = Unix.time() in
     for j = 1 to n do
