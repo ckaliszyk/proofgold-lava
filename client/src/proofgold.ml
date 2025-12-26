@@ -3851,6 +3851,27 @@ let initialize_commands () =
                Printf.fprintf oc "Corresponding proposition %s\n" (hashval_hexstring objorpropid))
            (Hashtbl.find_all term_info h)
       | _ -> raise BadCommandForm);
+  ac "exporttermroots" "exporttermroots <file>" "Exports the termroots of all defined props/objs to the given file (for Megalodon axiom checking)"
+    (fun _ al ->
+      match al with
+      | [fname] ->
+         let oc = open_out fname in
+         let ifun h (m,aid,thyh,pfgbh,otx,isprop,objorpropid) =
+           let thystr = match thyh with | Some(hh) -> Printf.sprintf "%s" (hashval_hexstring hh) | None -> "emptytheory" in
+           let (bhd,bhs) = DbBlockHeader.dbget pfgbh in  (* (hashval_hexstring pfgbh) *)
+	   let pbh = bhd.prevblockhash in
+	   let bblkh =
+             try match pbh with
+	         | Some(_,Poburn(plbk,pltx,_,_,_,_)) ->
+	            let (_,_,_,_,_,_,pblkh) = Db_outlinevals.dbget (hashpair plbk pltx) in
+	            Int64.add pblkh 1L
+	         | None -> 1L with Not_found -> 0L
+           in
+           Printf.fprintf oc "%s %s %Ld %s\n" (hashval_hexstring h) thystr bblkh (hashval_hexstring objorpropid);
+         in
+         Hashtbl.iter ifun term_info;
+         close_out oc
+      | _ -> raise BadCommandForm);
   ac "queryobjid" "queryobjid <hashval>" "Return info given a obj id"
     (fun oc al ->
       match al with
