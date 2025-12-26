@@ -46,6 +46,8 @@ module DbLtcPfgStatus :
 
 val ltcpfgstatus_dbget : hashval -> hashval * ((int64 * (hashval * hashval * hashval * int64 * int64) list) list)
 
+val remdups_pfg_status_height_entries : (hashval * hashval * hashval * int64 * int64) list -> (hashval * hashval * hashval * int64 * int64) list -> (hashval * hashval * hashval * int64 * int64) list
+
 module DbLtcBurnTx :
     sig
       val dbinit : unit -> unit

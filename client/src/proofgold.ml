@@ -4856,7 +4856,7 @@ let initialize_commands () =
 		      (show (); Printf.fprintf oc "* %s (missing delta, header not fully validated) %s %s %Ld %Ld\n" (hashval_hexstring dbh) (hashval_hexstring lbh) (hashval_hexstring ltx) ltm lhght)
 		  else
 		    (show (); Printf.fprintf oc "* %s (missing header) %s %s %Ld %Ld\n" (hashval_hexstring dbh) (hashval_hexstring lbh) (hashval_hexstring ltx) ltm lhght))
-	    zl)
+	    (remdups_pfg_status_height_entries zl []))
 	zll);
   ac "ltcgettxinfo" "ltcgettxinfo <txid>" "Get proofgold related information about an ltc burn tx."
     (fun oc al ->
