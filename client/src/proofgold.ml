@@ -7941,9 +7941,7 @@ let refresh_explorer_tables () =
        if Sys.file_exists ownedfn then Sys.remove ownedfn;
        Sys.rename nwownedfn ownedfn
   with
-  | Not_found -> ()
-  | Failure(ex) ->
-     log_string (Printf.sprintf "Failure (%s) while refreshing explorer tables. Using bkp.\n" ex);
+  | exc -> log_string (Printf.sprintf "Exception (%s) while refreshing explorer tables. Using bkp.\n" (Printexc.to_string exc));
      Hashtbl.clear addr_contents_table;
      Hashtbl.iter (fun k v -> Hashtbl.add addr_contents_table k v) addr_contents_table_bkp;
      Hashtbl.clear asset_id_hash_table;
