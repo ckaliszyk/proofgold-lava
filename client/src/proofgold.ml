@@ -569,7 +569,7 @@ let dbledgersnapshot_asset assetfile fin h =
         let a = DbAsset.dbget h in
         seocf (seo_asset seoc a (assetfile,None))
       with Not_found ->
-        Printf.printf "Could not find %s asset in database\n" (hashval_hexstring h)
+        log_string (Printf.sprintf "Could not find %s asset in database\n" (hashval_hexstring h))
     end
 
 let rec dbledgersnapshot_hcons (hconseltfile,assetfile) fin h l =
@@ -8216,18 +8216,18 @@ let rec init_explorer_tables_rec lkey =
 
 let init_explorer_tables () =
   let tmstart = Unix.time () in
-  Printf.printf "Creating Explorer Tables\n";
+  log_string "Creating Explorer Tables\n";
   let (bb,_) = get_bestblock () in
   try
     match bb with
     | None ->
-       Printf.printf "Could not determine best block\n";
+       log_string "Could not determine best block\n";
        raise Not_found
     | Some(dbh,lbk,ltx) ->
        init_explorer_tables_rec (hashpair lbk ltx);
-       Printf.printf "Finished creating Explorer Tables: %f seconds\n" (Unix.time () -. tmstart);
+       log_string (Printf.sprintf "Finished creating Explorer Tables: %f seconds\n" (Unix.time () -. tmstart));
   with Not_found ->
-    Printf.printf "Failed to create Explorer Tables: %f seconds\nExiting.\n" (Unix.time () -. tmstart);
+    log_string (Printf.sprintf "Failed to create Explorer Tables: %f seconds\nExiting.\n" (Unix.time () -. tmstart));
     !exitfn 1;
     ();;
 
@@ -8243,7 +8243,7 @@ let set_signal_handlers () =
   Sys.set_signal Sys.sigint
     (Sys.Signal_handle
        (fun sg ->
-         Printf.printf "got sigint signal. Terminating.\n";
+         log_string "got sigint signal. Terminating.\n";
          !exitfn 1));
   Sys.set_signal Sys.sigpipe Sys.Signal_ignore;
   ();;
