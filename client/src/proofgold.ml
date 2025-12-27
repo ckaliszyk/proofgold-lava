@@ -8731,5 +8731,16 @@ let main () =
       readevalloop()
     end;;
 
-main();;
 
+(*
+Printexc.record_backtrace true;;
+*)
+
+try
+  main ()
+with ex ->
+  log_string (Printexc.to_string ex);
+  log_string (Printexc.get_backtrace ());
+  exit 1;;
+
+main();;
