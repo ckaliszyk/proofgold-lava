@@ -2714,8 +2714,10 @@ let mgnicetrmbuf : Buffer.t = Buffer.create 1000;;
 let mghtml_nice_trm th m =
   let inegal = (th = Some(egalthyroot)) in
   let inhf = (th = Some(hfthyroot)) in
+(*
   let inmiz = (th = Some(mizthyroot)) in
   let inhoas = (th = Some(hoasthyroot)) in
+*)
   let check_objid_legend_cond p h =
     try
       let objid = Hashtbl.find term_theory_objid (th,h) in
@@ -2906,7 +2908,9 @@ let json2_signaitem th x =
       JsonObj([("type",JsonStr("signaitem"));("signaitemcase",JsonStr("signaknown"));("trmroot",JsonStr(hashval_hexstring trmroot));("propid",JsonStr(hashval_hexstring propid));("prop",JsonStr(mghtml_nice_trm th p))])
 
 let json2_docitem th x =
+(*
   let inegal = (th = Some(egalthyroot)) in
+*)
   match x with
     | Docsigna(h) -> JsonObj([("type",JsonStr("docitem"));("docitemcase",JsonStr("docsigna"));("signaroot",JsonStr(hashval_hexstring h))])
     | Docparam(h,a) ->
@@ -3147,8 +3151,10 @@ let rec json_pf_partial pubaddr pubitem th d szlim loclist vcx hcx =
 let html_trm_partial pubaddr pubitem th m szlim loclist vcx =
   let inegal = (th = Some(egalthyroot)) in
   let inhf = (th = Some(hfthyroot)) in
+(*
   let inmiz = (th = Some(mizthyroot)) in
   let inhoas = (th = Some(hoasthyroot)) in
+*)
   let check_objid_legend_cond p h =
     try
       let objid = Hashtbl.find term_theory_objid (th,h) in
