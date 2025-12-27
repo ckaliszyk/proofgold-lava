@@ -3971,8 +3971,7 @@ let initialize_commands () =
          let alr = ref [] in
          let bs = if !bounty_sorted_refreshing then !bounty_sorted_bkp else !bounty_sorted in
          let my_spent_table = if !spent_table_refreshing then spent_table_bkp else spent_table in
-         let lbs = List.length bs in
-         (*         Printf.fprintf oc "Note: There have been a total of %d bounties in all of history.\n" lbs; *)
+         (*         Printf.fprintf oc "Note: There have been a total of %d bounties in all of history.\n" (List.length bs); *)
          let rec g l m =
            if m > 0 then
              match l with
@@ -4150,8 +4149,7 @@ let initialize_commands () =
          let alr = ref [] in
          let bs = !placed_bounty_sorted in
          let my_spent_table = if !spent_table_refreshing then spent_table_bkp else spent_table in
-         let lbs = List.length bs in
-         (*         Printf.fprintf oc "Note: There have been a total of %d bounties in all of history.\n" lbs; *)
+         (*         Printf.fprintf oc "Note: There have been a total of %d bounties in all of history.\n" (List.length bs); *)
          let rec g l m =
            if m > 0 then
              match l with
@@ -7839,7 +7837,7 @@ let refresh_explorer_tables () =
     match bb with
     | None -> ()
     | Some(dbh,lbk,ltx) ->
-       let tmstart = Unix.time () in
+       (* let tmstart = Unix.time () in *)
        (*       Printf.printf "Refreshing Explorer Tables\n"; *)
        let lkey = hashpair lbk ltx in
        Hashtbl.clear addr_contents_table_bkp;
@@ -8576,7 +8574,7 @@ let main () =
   datadir_from_command_line(); (*** if -datadir=... is on the command line, then set Config.datadir so we can find the config file ***)
   process_config_file();
   process_config_args(); (*** settings on the command line shadow those in the config file ***)
-  let last_failure = ref None in
+(*  let last_failure = ref None in
   let failure_count = ref 0 in
   let failure_delay() =
     let tm = ltc_medtime() in
@@ -8604,7 +8602,7 @@ let main () =
 	incr failure_count;
 	last_failure := Some(tm);
 	Thread.delay 1.0
-  in
+  in*)
   let readevalloop () =
     while true do
       try
