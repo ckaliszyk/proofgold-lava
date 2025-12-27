@@ -21,7 +21,7 @@ let closelog () =
 
 let safe_log_string x =
   let m = Unix.localtime(Unix.time()) in
-  let oc = open_out (!Config.datadir ^ (if !Config.testnet then "/testnet/error.log" else "/error.log"))
+  let oc = open_out (!Config.datadir ^ (if !Config.testnet then "/testnet/error.log" else "/error.log")) in
   Printf.fprintf oc "[%d-%d-%d %d:%02d:%02d %02d] %s" (1900+m.tm_year) (1+m.tm_mon) (m.tm_mday)  (m.tm_hour) (m.tm_min) (m.tm_sec) (Thread.id (Thread.self ())) x;
   close_out oc;;
 
