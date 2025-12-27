@@ -19,13 +19,20 @@ let openlog () =
 let closelog () =
   close_out_noerr !log
 
+let safe_log_string x =
+  let m = Unix.localtime(Unix.time()) in
+  let oc = open_out (!Config.datadir ^ (if !Config.testnet then "/testnet/error.log" else "/error.log"))
+  Printf.fprintf oc "[%d-%d-%d %d:%02d:%02d %02d] %s" (1900+m.tm_year) (1+m.tm_mon) (m.tm_mday)  (m.tm_hour) (m.tm_min) (m.tm_sec) (Thread.id (Thread.self ())) x;
+  close_out oc;;
+
 (* Logs a string to the log file, with a timestamp. *)
 let log_string x =
-  let m=Unix.localtime(Unix.time()) in
-  Printf.fprintf !log "[%d-%d-%d %d:%02d:%02d %02d] " (1900+m.tm_year) (1+m.tm_mon) (m.tm_mday)  (m.tm_hour) (m.tm_min) (m.tm_sec) (Thread.id (Thread.self ()));
-  output_string !log x;
-  flush !log;
-  if pos_out !log > 100000000 then (*** prevent debug.log from becoming more than 100MB ***)
+  try
+    let m=Unix.localtime(Unix.time()) in
+    Printf.fprintf !log "[%d-%d-%d %d:%02d:%02d %02d] %s%!" (1900+m.tm_year) (1+m.tm_mon) (m.tm_mday)  (m.tm_hour) (m.tm_min) (m.tm_sec) (Thread.id (Thread.self ())) x;
+  with
+    _ -> safe_log_string x;;
+(*  if pos_out !log > 100000000 then (*** prevent debug.log from becoming more than 100MB ***)
     begin
       closelog ();
       let prevlog = (!Config.datadir ^ (if !Config.testnet then "/testnet/debug.log.1" else "/debug.log.1")) in
@@ -37,6 +44,7 @@ let log_string x =
 	  openlog()
 	end
     end
+*)
 
 (* Calculates the era of a block, based on its height. *)
 (***
