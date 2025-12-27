@@ -1000,7 +1000,7 @@ let find_marker_at_address tr beta =
   find_marker_in_hlist hl
 
 let resend_txpool oc =
-  let best = get_bestblock_print_warnings oc in
+  let (best, _) = get_bestblock () in
   match best with
   | None -> Printf.fprintf oc "Cannot determine best block\n"
   | Some(dbh,lbk,ltx) ->
