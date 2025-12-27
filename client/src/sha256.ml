@@ -15,65 +15,11 @@ open Zarithint
 (* Following the description in http://csrc.nist.gov/groups/STM/cavp/documents/shs/sha256-384-512.pdf *)
 type int32p8 = int32 * int32 * int32 * int32 * int32 * int32 * int32 * int32
 
-(* Initial hash value for SHA-256, as specified in the NIST standard. *)
-let sha256inithashval : int32 array =
-  [| 0x6a09e667l; 0xbb67ae85l; 0x3c6ef372l; 0xa54ff53al;
-     0x510e527fl; 0x9b05688cl; 0x1f83d9abl; 0x5be0cd19l |]
-
-(* Current hash value, initialized to an array of zeroes. *)
-let currhashval : int32 array = [| 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l |]
-
-(* Current block, initialized to an array of zeroes. *)
-let currblock : int32 array = [| 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l; 0l |]
-
-(* Performs one round of the SHA-256 hash function on the current hash value and current block. *)
-let sha256round () =
-  Hashbtc.sha256_round_arrays currhashval currblock
-;;
-
-(* Initializes the current hash value to the initial hash value for SHA-256. *)
-let sha256init () =
-  currhashval.(0) <- sha256inithashval.(0);
-  currhashval.(1) <- sha256inithashval.(1);
-  currhashval.(2) <- sha256inithashval.(2);
-  currhashval.(3) <- sha256inithashval.(3);
-  currhashval.(4) <- sha256inithashval.(4);
-  currhashval.(5) <- sha256inithashval.(5);
-  currhashval.(6) <- sha256inithashval.(6);
-  currhashval.(7) <- sha256inithashval.(7)
-
-(* Returns the current hash value as an 8-tuple of 32-bit integers. *)
-let getcurrint32p8 () =
-  (currhashval.(0),currhashval.(1),currhashval.(2),currhashval.(3),currhashval.(4),currhashval.(5),currhashval.(6),currhashval.(7))
-
-(* Calculates the number of padding bits needed for a given message length. *)
-let sha256padnum l =
-  let r = (l+1) mod 512 in
-  let k = if r <= 448 then 448 - r else 960 - r in
-  k
-
-(* Sets the j-th byte of a 32-bit integer to a given value. *)
-let setbyte32 x y j =
-  Int32.logor x (Int32.shift_left (Int32.of_int y) (8 * (3-j)))
-
 (* Calculates the SHA-256 hash of a given string. *)
 let sha256str s = Hashbtc.sha256 s
 
 (* Calculates the SHA-256 hash of a given double-hashed string. *)
 let sha256dstr s = Hashbtc.sha256 (Be256.to_string (Hashbtc.sha256 s))
-
-(* Serializes an 8-tuple of 32-bit integers to a byte stream. *)
-let seo_int32p8 o h c =
-  let (h0,h1,h2,h3,h4,h5,h6,h7) = h in
-  let c = seo_int32 o h0 c in
-  let c = seo_int32 o h1 c in
-  let c = seo_int32 o h2 c in
-  let c = seo_int32 o h3 c in
-  let c = seo_int32 o h4 c in
-  let c = seo_int32 o h5 c in
-  let c = seo_int32 o h6 c in
-  let c = seo_int32 o h7 c in
-  c
 
 (* Deserializes an 8-tuple of 32-bit integers from a byte stream. *)
 let sei_int32p8 i c =

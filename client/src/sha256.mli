@@ -6,10 +6,6 @@
 
 type int32p8 = int32 * int32 * int32 * int32 * int32 * int32 * int32 * int32
 
-val sha256init : unit -> unit
-val currblock : int32 array
-val getcurrint32p8 : unit -> int32p8
-
 val sha256str : string -> Be256.t
 val sha256dstr : string -> Be256.t
 
