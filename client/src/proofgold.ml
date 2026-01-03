@@ -261,7 +261,7 @@ let swappingthread () =
     try
       let (bb,_) = get_bestblock () in
       match bb with
-      | None -> raise Not_found
+      | None -> failwith "Swapping No Best Block"
       | Some(dbh,lbk,ltx) ->
 	 let (_,_,_,_,_,_,blkh) = Db_outlinevals.dbget (hashpair lbk ltx) in
 	 let (_,_,lr,tr,sr) = Db_validheadervals.dbget (hashpair lbk ltx) in
@@ -7445,7 +7445,7 @@ let initialize_commands () =
 	      let lr = get_ledgerroot best in
 	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))]))
 	    with Not_found ->
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))]))
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))]));
 	  with Not_found ->
 	    Printf.fprintf oc "Cannot determine height of best block %s\n" (hashval_hexstring h));
   ac "querybestblock" "querybestblock" "Print the current best block in json format.\nIn case of a tie, only one of the current best blocks is returned.\nThis command is intended to support explorers.\nSee also: bestblock"
@@ -7459,9 +7459,11 @@ let initialize_commands () =
 	    let (_,_,_,_,_,_,blkh) = Db_outlinevals.dbget (hashpair lbk ltx) in
 	    try
 	      let lr = get_ledgerroot best in
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))] @ al))
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))] @ al));
+	      Printf.fprintf oc "\n"
 	    with Not_found ->
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))] @ al))
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))] @ al));
+              Printf.fprintf oc "\n"
 	  with Not_found ->
 	    print_jsonval oc (JsonObj([("block",JsonStr(hashval_hexstring h))] @ al)));
   ac "bestblock" "bestblock" "Print the current best block in text format.\nIn case of a tie, only one of the current best blocks is returned.\nSee also: querybestblock"
