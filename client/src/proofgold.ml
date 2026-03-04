@@ -35,6 +35,8 @@ let ltc_listener_paused = ref false;;
 
 let commitment_maturation_minus_one = 11L;;
 
+let conj_content_table : (hashval, Logic.trm) Hashtbl.t = Hashtbl.create 100;;
+
 exception BadCommandForm;;
 
 let get_ledgerroot b =
@@ -261,7 +263,7 @@ let swappingthread () =
     try
       let (bb,_) = get_bestblock () in
       match bb with
-      | None -> failwith "Swapping No Best Block"
+      | None -> raise Not_found
       | Some(dbh,lbk,ltx) ->
 	 let (_,_,_,_,_,_,blkh) = Db_outlinevals.dbget (hashpair lbk ltx) in
 	 let (_,_,lr,tr,sr) = Db_validheadervals.dbget (hashpair lbk ltx) in
@@ -3855,19 +3857,37 @@ let initialize_commands () =
     (fun _ al ->
       match al with
       | [fname] ->
-         let oc = open_out fname in
+         let egalthyroot = Some (hexstring_hashval "29c988c5e6c620410ef4e61bcfcbe4213c77013974af40759d8b732c07d61967") in
+         (try Unix.mkdir "/tmp/t" 0o755 with _ -> ());
+         (try Unix.mkdir "/tmp/c" 0o755 with _ -> ());
+         let oc = open_out "/tmp/cc" in
+         let conj_fun id tm =
+           let naddr = try addr_pfgaddrstr (hashval_term_addr (Hashtbl.find propid_neg_propid id)) with Not_found -> "-" in
+           Printf.fprintf oc "%s %s %s\n" (hashval_hexstring id) (addr_pfgaddrstr (hashval_term_addr id)) naddr;
+           let oc = open_out ("/tmp/c/" ^ (hashval_hexstring id)) in
+           output_string oc (Mathdata.mghtml_nice_trm egalthyroot tm); (* All are assumed to be in Egal :( *)
+           close_out oc
+         in
+         Hashtbl.iter conj_fun conj_content_table;
+         close_out oc;
+         let oc = open_out "/tmp/tt" in
          let ifun h (m,aid,thyh,pfgbh,otx,isprop,objorpropid) =
-           let thystr = match thyh with | Some(hh) -> Printf.sprintf "%s" (hashval_hexstring hh) | None -> "emptytheory" in
-           let (bhd,bhs) = DbBlockHeader.dbget pfgbh in  (* (hashval_hexstring pfgbh) *)
-	   let pbh = bhd.prevblockhash in
-	   let bblkh =
-             try match pbh with
-	         | Some(_,Poburn(plbk,pltx,_,_,_,_)) ->
-	            let (_,_,_,_,_,_,pblkh) = Db_outlinevals.dbget (hashpair plbk pltx) in
-	            Int64.add pblkh 1L
-	         | None -> 1L with Not_found -> 0L
-           in
-           Printf.fprintf oc "%s %s %Ld %s\n" (hashval_hexstring h) thystr bblkh (hashval_hexstring objorpropid);
+           if thyh = egalthyroot then begin
+              let (bhd,bhs) = DbBlockHeader.dbget pfgbh in
+	      let pbh = bhd.prevblockhash in
+	      let bblkh =
+                try match pbh with
+	            | Some(_,Poburn(plbk,pltx,_,_,_,_)) ->
+	               let (_,_,_,_,_,_,pblkh) = Db_outlinevals.dbget (hashpair plbk pltx) in
+	               Int64.add pblkh 1L
+	            | None -> 1L with Not_found -> 0L
+              in
+              let naddr = try addr_pfgaddrstr (hashval_term_addr (Hashtbl.find propid_neg_propid objorpropid)) with Not_found -> "-" in
+              Printf.fprintf oc "%s %Ld %s %s %s\n" (hashval_hexstring h) bblkh (hashval_hexstring objorpropid) (addr_pfgaddrstr (hashval_term_addr objorpropid)) naddr;
+              let oc = open_out ("/tmp/t/" ^ (hashval_hexstring h)) in
+              output_string oc (Mathdata.mghtml_nice_trm thyh m);
+              close_out oc
+           end
          in
          Hashtbl.iter ifun term_info;
          close_out oc
@@ -7443,9 +7463,11 @@ let initialize_commands () =
 	    let (_,_,_,_,_,_,blkh) = Db_outlinevals.dbget (hashpair lbk ltx) in
 	    try
 	      let lr = get_ledgerroot best in
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))]))
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))]));
+              Printf.fprintf oc "\n"
 	    with Not_found ->
 	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))]));
+              Printf.fprintf oc "\n"
 	  with Not_found ->
 	    Printf.fprintf oc "Cannot determine height of best block %s\n" (hashval_hexstring h));
   ac "querybestblock" "querybestblock" "Print the current best block in json format.\nIn case of a tie, only one of the current best blocks is returned.\nThis command is intended to support explorers.\nSee also: bestblock"
@@ -7459,11 +7481,9 @@ let initialize_commands () =
 	    let (_,_,_,_,_,_,blkh) = Db_outlinevals.dbget (hashpair lbk ltx) in
 	    try
 	      let lr = get_ledgerroot best in
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))] @ al));
-	      Printf.fprintf oc "\n"
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h));("ledgerroot",JsonStr(hashval_hexstring lr))] @ al))
 	    with Not_found ->
-	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))] @ al));
-              Printf.fprintf oc "\n"
+	      print_jsonval oc (JsonObj([("height",JsonNum(Int64.to_string blkh));("block",JsonStr(hashval_hexstring h))] @ al))
 	  with Not_found ->
 	    print_jsonval oc (JsonObj([("block",JsonStr(hashval_hexstring h))] @ al)));
   ac "bestblock" "bestblock" "Print the current best block in text format.\nIn case of a tie, only one of the current best blocks is returned.\nSee also: querybestblock"
@@ -8156,6 +8176,7 @@ let rec init_explorer_tables_rec lkey =
                 Hashtbl.add propid_neg_propid propid npropid;
                 Hashtbl.add propid_neg_propid npropid propid;
                 Hashtbl.add propid_conj_pub_history_table lkey (propid,alpha);
+                Hashtbl.replace conj_content_table propid p;
              | _ -> ())
            dl
        end
