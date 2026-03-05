@@ -7,7 +7,6 @@
 
 #include "secp256k1.h"
 #include "hash_impl.h"
-#include "ripemd160.h"
 
 static struct custom_operations sha_buffer_ops = {
   (char*)"sha_buffer",
@@ -124,6 +123,8 @@ value c_sha256_round(value chv, value cb){
   Field(r, 7) = h;
   CAMLreturn (r);
 }
+
+#include "ripemd160.h"
 
 value c_ripemd160_be_be(value s){
   CAMLparam1(s);
