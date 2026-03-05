@@ -146,3 +146,10 @@ combination with staking proofgold currency (proofgold bars).  The
 node will attempt to stake if `staking=1` is included in the
 proofgold.conf file, or if -staking is included as a command line
 argument.
+
+### Running on ARM architectures (e.g. Raspberry Pi)
+
+- On Ubuntu-ARM64:
+  1) apt install g++ ocaml make zlib1g-dev libgdbm-dev libgmp-dev libzarith-ocaml-dev
+  2) cd pgc; rm s2n; ln -s s2n_arm s2n; make; cd ..
+  3) cd client; make
