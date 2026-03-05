@@ -1,18 +1,9 @@
-#include <stdio.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/resource.h>
-#include <arpa/inet.h>
-
-#include <time.h> // Only needed to avoid warning
 #include "secp256k1.h"
-#include "scalar_impl.h"
-#include "testrand_impl.h"
-#include "hash_impl.h"
 #include "field_impl.h"
+#include "scalar_impl.h"
 #include "group_impl.h"
 #include "ecmult_const_impl.h"
+#include "int128_impl.h"
 #include "scratch_impl.h"
 
 #include <caml/alloc.h>
@@ -20,6 +11,7 @@
 #include <caml/memory.h>
 #include <caml/custom.h>
 #include <caml/fail.h>
+
 
 static struct custom_operations pt_ops = {
   (char*)"pt",
@@ -90,7 +82,7 @@ value c_secp256_smulp(value s, value p){
   secp256k1_scalar xx1;
   secp256k1_scalar_set_b32(&xx1, xxx, NULL);
   secp256k1_gej r;
-  secp256k1_ecmult_const(&r, Pt_val(p), &xx1, 257);
+  secp256k1_ecmult_const(&r, Pt_val(p), &xx1);
   CAMLlocal1(o);
   o = alloc_pt();
   secp256k1_ge_set_gej(Pt_val(o), &r);
