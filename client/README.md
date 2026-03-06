@@ -153,3 +153,13 @@ argument.
   1) apt install g++ ocaml make zlib1g-dev libgdbm-dev libgmp-dev libzarith-ocaml-dev
   2) cd pgc; rm s2n; ln -s s2n_arm s2n; make; cd ..
   3) cd client; make
+
+- To get a 'DBM', either get one from the network (slow), download an ARM one or convert from x86_64.
+  To convert:
+    1) Install 'gdbmtool' (sudo apt install dgbmtool) both on the x86 and on the ARM systems.
+    2) Go to "dbm" and: for i in *; do mkdir -p ../dump/$i; done
+    3) find . -type f | while read i; do gdbm_dump $i | gzip > ../dump/$i.dump.gz; done
+  On the ARM64 Machine:
+    4) for i in *; do mkdir -p ../dbm/$i; done
+    5) for i in */db4.pag.dump.gz; do gzip -d $i; gdbm_load ${i%.gz} ../dbm/${i%.dump.gz}; done
+
