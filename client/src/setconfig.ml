@@ -109,6 +109,7 @@ let setl = ref []
 
 let process_config_line l =
   let ll = String.length l in
+  if ll > 0 && l.[0] <> '#' then
   begin
     try
       List.iter
